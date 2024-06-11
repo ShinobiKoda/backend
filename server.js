@@ -48,11 +48,16 @@ app.get("/api/jobs", (req, res) => {
 
 // Create new job
 app.post("/api/jobs", (req, res) => {
-  const data = readData();
-  const newJob = { id: Date.now(), ...req.body };
-  data.push(newJob);
-  writeData(data);
-  res.status(201).json(newJob);
+  try {
+    const data = readData();
+    const newJob = { id: Date.now(), ...req.body };
+    data.push(newJob);
+    writeData(data);
+    res.status(201).json(newJob);
+  } catch (error) {
+    console.error("Error creating new job:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 // Update job by ID
