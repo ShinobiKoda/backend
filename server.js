@@ -23,17 +23,6 @@ const writeData = (data) => {
   fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
 };
 
-// Get all jobs
-app.get("/api/jobs/:id", (req, res) => {
-  const data = readData();
-  const job = data.jobs.find((j) => j.id === req.params.id); // Note the change here
-  if (job) {
-    res.json(job);
-  } else {
-    res.status(404).send("Job not found");
-  }
-});
-
 // Get job by ID
 app.get("/api/jobs/:id", (req, res) => {
   const data = readData();
