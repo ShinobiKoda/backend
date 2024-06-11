@@ -24,20 +24,37 @@ const writeData = (data) => {
 };
 
 // Get all jobs
-app.get("/api/jobs", (req, res) => {
-  const data = readData();
-  res.json(data);
-});
-
-// Get job by ID
 app.get("/api/jobs/:id", (req, res) => {
   const data = readData();
-  const job = data.find((j) => j.id === parseInt(req.params.id, 10));
+  const job = data.jobs.find((j) => j.id === req.params.id); // Note the change here
   if (job) {
     res.json(job);
   } else {
     res.status(404).send("Job not found");
   }
+});
+
+// Get job by ID
+app.get("/api/jobs/:id", (req, res) => {
+  const data = readData();
+  const job = data.jobs.find((j) => j.id === req.params.id); // ID as string
+  if (job) {
+    res.json(job);
+  } else {
+    res.status(404).send("Job not found");
+  }
+});
+
+app.get("/api/jobs", (req, res) => {
+  const { _limit } = req.query;
+  const data = readData();
+  let jobs = data.jobs;
+
+  if (_limit) {
+    jobs = jobs.slice(0, Number(_limit));
+  }
+
+  res.json({ jobs });
 });
 
 // Create new job
@@ -52,24 +69,22 @@ app.post("/api/jobs", (req, res) => {
 // Update job by ID
 app.put("/api/jobs/:id", (req, res) => {
   const data = readData();
-  const index = data.findIndex((j) => j.id === parseInt(req.params.id, 10));
+  const index = data.jobs.findIndex((j) => j.id === req.params.id); // ID as string
   if (index !== -1) {
-    data[index] = { id: parseInt(req.params.id, 10), ...req.body };
-    writeData(data);
-    res.json(data[index]);
+    data.jobs[index] = { id: req.params.id, ...req.body };
+    writeData({ jobs: data.jobs });
+    res.json(data.jobs[index]);
   } else {
     res.status(404).send("Job not found");
   }
 });
-
 // Delete job by ID
 app.delete("/api/jobs/:id", (req, res) => {
   const data = readData();
-  const newData = data.filter((j) => j.id !== parseInt(req.params.id, 10));
-  writeData(newData);
+  const newData = data.jobs.filter((j) => j.id !== req.params.id); // ID as string
+  writeData({ jobs: newData });
   res.status(204).send();
 });
-
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
